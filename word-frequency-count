@@ -1,0 +1,69 @@
+#!/usr/bin/python3
+
+from collections import defaultdict
+
+import re
+import sys
+
+class WordList():
+
+    # Because the top-500-words list contains nouns and prepositions, it is easier to
+    # process. Nouns and prepositions are not conjugated as verbs are.
+    def __init__(self):
+        self.word_list = {}
+        with open('/home/scaro/git/word-frequency-analyzer/top-500-words') as f:
+            for line in f.readlines():
+                line = line.strip()
+                self.word_list[line] = 0
+
+        with open('/home/scaro/git/word-frequency-analyzer/top-100-verbs-with-conjugation') as f:
+            for line in f.readlines():
+                if line.startswith('#'):
+                    continue
+                try:
+                    words = line.split()
+                    for word in words:
+                        self.word_list[word] = 0
+                except:
+                    pass
+
+if __name__ == '__main__':
+
+    try:
+        filename = sys.argv[1]
+    except IndexError:
+        sys.exit()
+
+
+    with open(filename) as f:
+        content = f.read()
+
+    unique_words = set( [ w.lower().rstrip('.') for w in content.split()])
+
+
+    #, sorted(unique_words))
+
+    wl = WordList()
+
+    infrequent_words = []
+    #for word in wl.word_list.keys():
+    for word in unique_words:
+        if word in wl.word_list:
+           wl.word_list[word] += 1
+        else:
+            infrequent_words.append(word)
+
+    frequent_words   = []
+    for word in sorted(wl.word_list):
+        if wl.word_list[word] > 0:
+            frequent_words.append(word)
+
+    total_unique_words = len(unique_words)
+    count_of_frequent_words   = len(frequent_words)
+    count_of_infrequent_words = len(infrequent_words)
+
+    print (total_unique_words, "unique words\n")
+    print (count_of_frequent_words, "frequent words", frequent_words, '\n')
+    print (count_of_infrequent_words, "infrequent words", infrequent_words)
+
+
