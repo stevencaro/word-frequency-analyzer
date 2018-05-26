@@ -1,16 +1,16 @@
 #!/usr/bin/python3
 
 from collections import defaultdict
+from itertools import zip_longest
 
 import re
 import sys
 
 class WordList():
 
-    # Because the top-500-words list contains nouns and prepositions, it is easier to
-    # process. Nouns and prepositions are not conjugated as verbs are.
     def __init__(self):
         self.word_list = {}
+
         with open('/home/scaro/git/word-frequency-analyzer/top-500-words') as f:
             for line in f.readlines():
                 line = line.strip()
@@ -18,36 +18,36 @@ class WordList():
 
         with open('/home/scaro/git/word-frequency-analyzer/top-100-verbs-with-conjugation') as f:
             for line in f.readlines():
-                if line.startswith('#'):
-                    continue
-                try:
-                    words = line.split()
-                    for word in words:
-                        self.word_list[word] = 0
-                except:
-                    pass
+                words = line.split()
+                for word in words:
+                    self.word_list[word] = 0
 
 if __name__ == '__main__':
 
     try:
-        filename = sys.argv[1]
+        content_file = sys.argv[1]
     except IndexError:
         sys.exit()
 
-
-    with open(filename) as f:
+    # The following code reads the content as one chunk of data:
+    with open(content_file) as f:
         content = f.read()
 
-    unique_words = set( [ w.lower().rstrip('.') for w in content.split()])
+    # The following code strips double quotes, single quotes, commas, periods, and colons
+    # from each word in the content:
+    content_words          = [ word.lower().lstrip('“"‘\'').rstrip(':,."”\'’') \
+                             for word in content.split() ]
 
+    # The follownig code calculates total word count and unique words in the content:
+    count_of_total_words = len(content_words)
+    unique_words         = set(content_words)
 
-    #, sorted(unique_words))
-
+    # The following code creates the frequent word word-list:
     wl = WordList()
 
     infrequent_words = []
     #for word in wl.word_list.keys():
-    for word in unique_words:
+    for word in sorted(unique_words):
         if word in wl.word_list:
            wl.word_list[word] += 1
         else:
@@ -58,12 +58,28 @@ if __name__ == '__main__':
         if wl.word_list[word] > 0:
             frequent_words.append(word)
 
-    total_unique_words = len(unique_words)
+    count_of_unique_words = len(unique_words)
     count_of_frequent_words   = len(frequent_words)
     count_of_infrequent_words = len(infrequent_words)
 
-    print (total_unique_words, "unique words\n")
-    print (count_of_frequent_words, "frequent words", frequent_words, '\n')
-    print (count_of_infrequent_words, "infrequent words", infrequent_words)
+    print (count_of_total_words, "total words")
+    print (count_of_unique_words, "unique words")
+    print (count_of_frequent_words, "frequent words")
+
+    def grouper(iterable, n, fillvalue=None):
+        "Collect data into fixed-length chunks or blocks"
+        # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+        args = [iter(iterable)] * n
+        return zip_longest(*args, fillvalue=fillvalue)
 
 
+    for wds in grouper(frequent_words, 5, fillvalue = ""):
+        print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
+
+    print (count_of_infrequent_words, "infrequent words" )
+
+    for wds in grouper(infrequent_words, 5, fillvalue = ""):
+        print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
+
+    print('Percentage frequent words: {:.2%} '.format( count_of_frequent_words / count_of_unique_words))
+    print('Percentage infrequent words: {:.2%} '.format( count_of_infrequent_words / count_of_unique_words))
