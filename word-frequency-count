@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from itertools import zip_longest
+from math import ceil
 
 import argparse
 import sys
@@ -86,18 +87,32 @@ if __name__ == '__main__':
     print (count_of_unique_words, "unique words")
     print (count_of_frequent_words, "frequent words")
 
-    if args.show_frequent:
-    # Prints the frequent words in a 5 column format
-        for wds in grouper(frequent_words, 5, fillvalue = ""):
+    def display_words(word_list):
+        # Displays words in a 5 column format
+
+        NUM_COLUMNS = 5
+        num_words_per_column = ceil(len(word_list) / NUM_COLUMNS )
+
+        if len(word_list) < NUM_COLUMNS:
+            print('\tUnable to display word lists with fewer than 5 words.')
+            return
+
+        def fill_columns(word_list_inner):
+            return list(grouper(word_list_inner, num_words_per_column, '--'))
+
+        (col1, col2, col3, col4, col5) = fill_columns(word_list)
+
+        for wds in zip_longest(col1, col2, col3, col4, col5):
             print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
+
+    if args.show_frequent:
+        display_words(frequent_words)
 
     print (count_of_infrequent_words, "infrequent words" )
-
     if args.show_infrequent:
-        # Prints the infrequent words in a 5 column format
-        for wds in grouper(infrequent_words, 5, fillvalue = ""):
-            print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
+        display_words(infrequent_words)
 
     # Prints the percentages of frequent words and infrequent words
     print('Percentage frequent words: {:.2%} '.format( count_of_frequent_words / count_of_unique_words))
     print('Percentage infrequent words: {:.2%} '.format( count_of_infrequent_words / count_of_unique_words))
+
