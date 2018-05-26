@@ -22,6 +22,13 @@ class WordList():
                 for word in words:
                     self.word_list[word] = 0
 
+# The following is a recipe from the itertools documentation page:
+# https://docs.python.org/3/library/itertools.html
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
+
 if __name__ == '__main__':
 
     try:
@@ -38,27 +45,29 @@ if __name__ == '__main__':
     content_words          = [ word.lower().lstrip('“"‘\'').rstrip(':,."”\'’') \
                              for word in content.split() ]
 
-    # The follownig code calculates total word count and unique words in the content:
+    # Calculates total word count and unique words in the content:
     count_of_total_words = len(content_words)
-    unique_words         = set(content_words)
+    content_unique_words = set(content_words)
 
-    # The following code creates the frequent word word-list:
+    # Creates the frequent word word-list:
     wl = WordList()
 
     infrequent_words = []
-    #for word in wl.word_list.keys():
-    for word in sorted(unique_words):
+    # Calculates which words in the content are in the frequent words dictionary
+    for word in sorted(content_unique_words):
         if word in wl.word_list:
            wl.word_list[word] += 1
         else:
             infrequent_words.append(word)
 
     frequent_words   = []
+    # Collects the words that were calculated to be frequent
     for word in sorted(wl.word_list):
         if wl.word_list[word] > 0:
             frequent_words.append(word)
 
-    count_of_unique_words = len(unique_words)
+    # Calculates and displays the totals:
+    count_of_unique_words     = len(content_unique_words)
     count_of_frequent_words   = len(frequent_words)
     count_of_infrequent_words = len(infrequent_words)
 
@@ -66,20 +75,17 @@ if __name__ == '__main__':
     print (count_of_unique_words, "unique words")
     print (count_of_frequent_words, "frequent words")
 
-    def grouper(iterable, n, fillvalue=None):
-        "Collect data into fixed-length chunks or blocks"
-        # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
-        args = [iter(iterable)] * n
-        return zip_longest(*args, fillvalue=fillvalue)
 
-
+    # Prints the frequent words in a 5 column format
     for wds in grouper(frequent_words, 5, fillvalue = ""):
         print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
 
     print (count_of_infrequent_words, "infrequent words" )
 
+    # Prints the infrequent words in a 5 column format
     for wds in grouper(infrequent_words, 5, fillvalue = ""):
         print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
 
+    # Prints the percentages of frequent words and infrequent words
     print('Percentage frequent words: {:.2%} '.format( count_of_frequent_words / count_of_unique_words))
     print('Percentage infrequent words: {:.2%} '.format( count_of_infrequent_words / count_of_unique_words))
