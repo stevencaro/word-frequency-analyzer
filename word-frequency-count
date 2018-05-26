@@ -38,10 +38,6 @@ if __name__ == '__main__':
     parser.add_argument('-f', dest = 'show_frequent', action='store_true',  help='Show frequent words in text')
     parser.add_argument('-wl', dest = 'show_word_list', action='store_true',  help='Show words in frequent word list and exit.')
 
-    #group = parser.add_mutually_exclusive_group()
-    #group.add_argument('text_file', help='text to process')
-    #group.add_argument('-wl', dest = 'show_word_list', action='store_true',  help='Show words in frequent word list and exit.')
-
     args = parser.parse_args()
     content_file = args.text_file
 
@@ -87,14 +83,26 @@ if __name__ == '__main__':
     print (count_of_unique_words, "unique words")
     print (count_of_frequent_words, "frequent words")
 
+    def pad_short_word_list(word_list_to_pad, num_columns_in_output):
+        len_word_list = len(word_list_to_pad)
+        padding = num_columns_in_output - len_word_list
+
+        padded_word_list = word_list_to_pad.extend(['--'] * padding)
+        print(padded_word_list)
+        return padded_word_list
+
     def display_words(word_list):
         # Displays words in a 5 column format
-
+        #print(type(word_list))
         NUM_COLUMNS = 5
         num_words_per_column = ceil(len(word_list) / NUM_COLUMNS )
 
         if len(word_list) < NUM_COLUMNS:
-            print('\tUnable to display word lists with fewer than 5 words.')
+            #word_list = pad_short_word_list(word_list, NUM_COLUMNS)
+            #print(type(word_list))
+            for word in word_list:
+                print ('\t', word, end=' ')
+            print()
             return
 
         def fill_columns(word_list_inner):
