@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
-from collections import defaultdict
 from itertools import zip_longest
 
-import re
+import argparse
 import sys
 
 class WordList():
@@ -31,18 +30,30 @@ def grouper(iterable, n, fillvalue=None):
 
 if __name__ == '__main__':
 
-    try:
-        content_file = sys.argv[1]
-    except IndexError:
+    # Process command line arguments
+    parser = argparse.ArgumentParser(description='Show count of frequent words in given text')
+    parser.add_argument('text_file', nargs='?', default=None, help='text to process')
+    parser.add_argument('-i', dest = 'show_infrequent', action='store_true',  help='Show infrequent words in text')
+    parser.add_argument('-f', dest = 'show_frequent', action='store_true',  help='Show frequent words in text')
+    parser.add_argument('-wl', dest = 'show_word_list', action='store_true',  help='Show words in frequent word list and exit.')
+
+    #group = parser.add_mutually_exclusive_group()
+    #group.add_argument('text_file', help='text to process')
+    #group.add_argument('-wl', dest = 'show_word_list', action='store_true',  help='Show words in frequent word list and exit.')
+
+    args = parser.parse_args()
+    content_file = args.text_file
+
+    if args.show_word_list or content_file == None:
         sys.exit()
 
     # The following code reads the content as one chunk of data:
     with open(content_file) as f:
         content = f.read()
 
-    # The following code strips double quotes, single quotes, commas, periods, and colons
-    # from each word in the content:
-    content_words          = [ word.lower().lstrip('“"‘\'').rstrip(':,."”\'’') \
+    # The following code strips double quotes, single quotes, commas, periods, colons
+    # and parentheses from the ends of each word in the content:
+    content_words          = [ word.lower().lstrip('(“"‘\'').rstrip('):,."”\'’') \
                              for word in content.split() ]
 
     # Calculates total word count and unique words in the content:
@@ -75,16 +86,17 @@ if __name__ == '__main__':
     print (count_of_unique_words, "unique words")
     print (count_of_frequent_words, "frequent words")
 
-
+    if args.show_frequent:
     # Prints the frequent words in a 5 column format
-    for wds in grouper(frequent_words, 5, fillvalue = ""):
-        print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
+        for wds in grouper(frequent_words, 5, fillvalue = ""):
+            print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
 
     print (count_of_infrequent_words, "infrequent words" )
 
-    # Prints the infrequent words in a 5 column format
-    for wds in grouper(infrequent_words, 5, fillvalue = ""):
-        print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
+    if args.show_infrequent:
+        # Prints the infrequent words in a 5 column format
+        for wds in grouper(infrequent_words, 5, fillvalue = ""):
+            print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
 
     # Prints the percentages of frequent words and infrequent words
     print('Percentage frequent words: {:.2%} '.format( count_of_frequent_words / count_of_unique_words))
