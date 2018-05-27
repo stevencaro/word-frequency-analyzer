@@ -25,9 +25,30 @@ class WordList():
 # The following is a recipe from the itertools documentation page:
 # https://docs.python.org/3/library/itertools.html
 def grouper(iterable, n, fillvalue=None):
-    "Collect data into fixed-length chunks or blocks"
+    # Collect data into fixed-length chunks or blocks
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
+
+def display_words(word_list):
+    # This function displays the words in word_list in a 5 column format
+    NUM_COLUMNS = 5
+    num_words_per_column = ceil(len(word_list) / NUM_COLUMNS )
+
+    # Handles very short lists with fewer than 5 words:
+    if len(word_list) < NUM_COLUMNS:
+        for word in word_list:
+            print ('    ', word, end=' ')
+        print()
+        return
+
+    # Fills five lists, one for each column of the output:
+    (col1, col2, col3, col4, col5) = \
+            list(grouper(word_list, num_words_per_column, '--'))
+
+    # displays each column of the output, one row at a time:
+    for wds in zip_longest(col1, col2, col3, col4, col5):
+        print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
+
 
 if __name__ == '__main__':
 
@@ -60,7 +81,10 @@ if __name__ == '__main__':
     # Creates the frequent word word-list:
     wl = WordList()
 
+    # Creates the lists to store the results:
     infrequent_words = []
+    frequent_words   = []
+
     # Calculates which words in the content are in the frequent words dictionary
     for word in sorted(content_unique_words):
         if word in wl.word_list:
@@ -68,59 +92,44 @@ if __name__ == '__main__':
         else:
             infrequent_words.append(word)
 
-    frequent_words   = []
     # Collects the words that were calculated to be frequent
     for word in sorted(wl.word_list):
         if wl.word_list[word] > 0:
             frequent_words.append(word)
 
-    # Calculates and displays the totals:
+    # Calculates the totals:
     count_of_unique_words     = len(content_unique_words)
     count_of_frequent_words   = len(frequent_words)
     count_of_infrequent_words = len(infrequent_words)
 
+    # Displays the results:
     print (count_of_total_words, "total words")
     print (count_of_unique_words, "unique words")
     print (count_of_frequent_words, "frequent words")
-
-    def pad_short_word_list(word_list_to_pad, num_columns_in_output):
-        len_word_list = len(word_list_to_pad)
-        padding = num_columns_in_output - len_word_list
-
-        padded_word_list = word_list_to_pad.extend(['--'] * padding)
-        print(padded_word_list)
-        return padded_word_list
-
-    def display_words(word_list):
-        # Displays words in a 5 column format
-        #print(type(word_list))
-        NUM_COLUMNS = 5
-        num_words_per_column = ceil(len(word_list) / NUM_COLUMNS )
-
-        if len(word_list) < NUM_COLUMNS:
-            #word_list = pad_short_word_list(word_list, NUM_COLUMNS)
-            #print(type(word_list))
-            for word in word_list:
-                print ('\t', word, end=' ')
-            print()
-            return
-
-        def fill_columns(word_list_inner):
-            return list(grouper(word_list_inner, num_words_per_column, '--'))
-
-        (col1, col2, col3, col4, col5) = fill_columns(word_list)
-
-        for wds in zip_longest(col1, col2, col3, col4, col5):
-            print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
 
     if args.show_frequent:
         display_words(frequent_words)
 
     print (count_of_infrequent_words, "infrequent words" )
+
     if args.show_infrequent:
         display_words(infrequent_words)
 
     # Prints the percentages of frequent words and infrequent words
-    print('Percentage frequent words: {:.2%} '.format( count_of_frequent_words / count_of_unique_words))
-    print('Percentage infrequent words: {:.2%} '.format( count_of_infrequent_words / count_of_unique_words))
+    print('Percentage frequent words: {:.2%} '\
+          .format( count_of_frequent_words / count_of_unique_words))
 
+    print('Percentage infrequent words: {:.2%} '\
+          .format( count_of_infrequent_words / count_of_unique_words))
+
+
+
+
+#    def pad_short_word_list(word_list_to_pad, num_columns_in_output):
+#        len_word_list = len(word_list_to_pad)
+#        padding = num_columns_in_output - len_word_list
+#
+#        padded_word_list = word_list_to_pad.extend(['--'] * padding)
+#        print(padded_word_list)
+#        return padded_word_list
+#
