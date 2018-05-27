@@ -49,6 +49,30 @@ def display_words(word_list):
     for wds in zip_longest(col1, col2, col3, col4, col5):
         print('  {:15.15} {:15.15} {:15.15} {:15.15} {:15.15}'.format(*wds))
 
+class ListToSortedColumns():
+
+    def __init__(self, data, num_columns, fill='--'):
+
+        self._list     = sorted(data)
+        self._num_cols = num_columns
+        self._num_words_per_column = ceil(len(self._list) / self._num_cols )
+        self._fill = fill
+
+        self.cols = list( grouper(self._list, self._num_words_per_column, fill))
+        self.rows = zip_longest(*self.cols, fillvalue=fill)
+
+
+    def display(self, width=15, truncate=15):
+        # Creates the format {:15.15}:
+        fmt1 = '{{:{}.{}}}'.format(width, truncate)
+        # And then repeats it for the number of columns
+        fmt2 = fmt1 * self._num_cols
+        for row in self.rows:
+            #if len(row) < self._num_cols:
+            #    padding = self._num_cols - len(row)
+            #    row.extend( self.fill * padding)
+            #print(row)
+            print(fmt2.format(*row))
 
 if __name__ == '__main__':
 
@@ -132,4 +156,5 @@ if __name__ == '__main__':
 #        padded_word_list = word_list_to_pad.extend(['--'] * padding)
 #        print(padded_word_list)
 #        return padded_word_list
+        #print (' -- ', fmt1, ' --')
 #
