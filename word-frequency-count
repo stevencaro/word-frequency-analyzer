@@ -4,6 +4,7 @@ from itertools import zip_longest
 from math import ceil
 
 import argparse
+import re
 import sys
 
 class WordList():
@@ -104,12 +105,22 @@ if __name__ == '__main__':
     with open(content_file) as f:
         content = f.read()
 
+    # Filters out non-words from content string:
+    def isa_word(wd):
+        # Any string that has a digit is considered a non-word:
+        num_pattern = re.compile(r'\d+')
+        if num_pattern.search(wd):
+            return False
+        else:
+            return True
+
     # Strips double quotes, single quotes, commas, periods, colons
-    # and parentheses from the ends of each word in the content:
+    # and parentheses from the ends of each word in the content.
+    # Also filters out non-words using the isa_word function.
     content_words = [ word.lower().
                       lstrip('(“"‘\'').
                       rstrip('):,."”\'’') \
-                      for word in content.split() ]
+                      for word in content.split() if isa_word(word) ]
 
     # Calculates total word count and unique words in the content:
     count_of_total_words = len(content_words)
@@ -156,9 +167,9 @@ if __name__ == '__main__':
         output.display()
 
     # Prints the percentages of frequent words and infrequent words
-    print('Percentage frequent words: {:.2%} '\
+    print('Percentage frequent words: {:.1%} '\
           .format( count_of_frequent_words / count_of_unique_words))
 
-    print('Percentage infrequent words: {:.2%} '\
+    print('Percentage infrequent words: {:.1%} '\
           .format( count_of_infrequent_words / count_of_unique_words))
 
