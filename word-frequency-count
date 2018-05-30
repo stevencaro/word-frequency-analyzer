@@ -12,12 +12,12 @@ class WordList():
     def __init__(self):
         self.word_list = {}
 
-        with open('/home/scaro/git/word-frequency-analyzer/top-500-words') as f:
+        with open('top-500-words') as f:
             for line in f.readlines():
                 line = line.strip()
                 self.word_list[line] = 0
 
-        with open('/home/scaro/git/word-frequency-analyzer/top-100-verbs-with-conjugation') as f:
+        with open('top-100-verbs-with-conjugation') as f:
             for line in f.readlines():
                 words = line.split()
                 for word in words:
@@ -66,14 +66,14 @@ class ListToSortedColumns():
         self.cols = list( grouper(self._list, self._num_words_per_column, fill))
         self.rows = zip_longest(*self.cols, fillvalue=fill)
 
-    def display(self, width=15, truncate=15):
+    def display(self, width=15, truncate=14):
         # Creates the format {:15.15}:
         word_fmt = '{{:{}.{}}}'.format(width, truncate)
 
         # And then repeats it for the number of columns
         col_fmt = word_fmt * self._num_cols
         # Prints the data. Will raise an IndexError on small data sets
-        # with fewer than _num_cols words
+        # with fewer than _num_cols words:
         try:
             for row in self.rows:
                 print(col_fmt.format(*row))
@@ -92,8 +92,10 @@ if __name__ == '__main__':
                         action = 'store_true',  help='Show infrequent words in text')
     parser.add_argument('-f', dest = 'show_frequent',
                         action = 'store_true',  help='Show frequent words in text')
+    parser.add_argument('-c', dest = 'output_columns', type=int, default=5,
+                        action = 'store',  help='Number of columns to use in output')
     parser.add_argument('-wl', dest = 'show_word_list',
-                        action = 'store_true',  help='Show words in frequent word list and exit.')
+                        action = 'store_true',  help='Show words in frequent word list and exit')
 
     args = parser.parse_args()
     content_file = args.text_file
@@ -119,7 +121,7 @@ if __name__ == '__main__':
     # Also filters out non-words using the isa_word function.
     content_words = [ word.lower().
                       lstrip('(“"‘\'').
-                      rstrip('):,."”\'’') \
+                      rstrip('):,."”\'’')
                       for word in content.split() if isa_word(word) ]
 
     # Calculates total word count and unique words in the content:
@@ -155,21 +157,21 @@ if __name__ == '__main__':
     print (count_of_unique_words, "unique words")
     print (count_of_frequent_words, "frequent words")
 
-    NUM_COLUMNS = 5
+    num_columns = args.output_columns
     if args.show_frequent:
-        output = ListToSortedColumns(frequent_words, NUM_COLUMNS)
+        output = ListToSortedColumns(frequent_words, num_columns)
         output.display()
 
     print (count_of_infrequent_words, "infrequent words" )
 
     if args.show_infrequent:
-        output = ListToSortedColumns(infrequent_words, NUM_COLUMNS)
+        output = ListToSortedColumns(infrequent_words, num_columns)
         output.display()
 
     # Prints the percentages of frequent words and infrequent words
-    print('Percentage frequent words: {:.1%} '\
+    print('Percentage frequent words: {:.1%} '
           .format( count_of_frequent_words / count_of_unique_words))
 
-    print('Percentage infrequent words: {:.1%} '\
+    print('Percentage infrequent words: {:.1%} '
           .format( count_of_infrequent_words / count_of_unique_words))
 
